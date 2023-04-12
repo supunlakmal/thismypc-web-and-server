@@ -57,7 +57,9 @@ export default async function handler(
       }
     );
 
-    return res.status(200).json({ name: "Login successful", token: token });
+    return res
+      .status(200)
+      .json({ name: "Login successful", token: token, userId: user._id });
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
     return res.status(500).json(respond("Internal server error"));
