@@ -16,7 +16,7 @@ export default async function handler(
   if (!email || !password || !firstName || !lastName) {
     return res
       .status(401)
-      .json(respond("username/password/first name/last name required"));
+      .json(respond("Email/password/first name/last name required"));
   }
 
   if (!validator.isAlpha(firstName) || !validator.isAlpha(lastName)) {
@@ -30,12 +30,14 @@ export default async function handler(
   }
 
   const encryptedPassword = md5(password);
+  const userType = "user"; // Hard-code the user type value
 
   const userData = {
     email,
     password: encryptedPassword,
     firstName,
     lastName,
+    userType, // Add the hard-coded user type to the userData object
   };
 
   try {

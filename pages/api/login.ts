@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import md5 from "md5";
 import type { NextApiRequest, NextApiResponse } from "next";
 import validator from "validator";
@@ -6,6 +7,9 @@ import { connectToMongoClient, dbName, respond } from "../../utils/mongoUtils";
 type Data = {
   name: string;
 };
+
+// JWT secret key (should be moved to .env file in a real-world application)
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export default async function handler(
   req: NextApiRequest,
@@ -38,7 +42,19 @@ export default async function handler(
       return res.status(401).json(respond("Invalid email or password"));
     }
 
-    return res.status(200).json(respond("Login successful"));
+    // Create and sign the JWT token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+      },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    return res.status(200).json({ name: "Login successful", token: token });
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
     return res.status(500).json(respond("Internal server error"));
