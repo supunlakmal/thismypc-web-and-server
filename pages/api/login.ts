@@ -1,39 +1,11 @@
 import md5 from "md5";
-import { MongoClient } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 import validator from "validator";
+import { connectToMongoClient, dbName, respond } from "../../utils/mongoUtils";
 
 type Data = {
   name: string;
 };
-
-// Connection URI and database name
-const uri = process.env.MONGODB_URI as string;
-const dbName = process.env.DB_NAME as string;
-
-// Create a new MongoClient
-const client = new MongoClient(uri);
-
-let isConnected = false;
-
-async function connectToMongoClient() {
-  if (!isConnected) {
-    try {
-      await client.connect();
-      isConnected = true;
-    } catch (error) {
-      console.error("Error connecting to MongoDB:", error);
-      throw error;
-    }
-  }
-  return client;
-}
-
-function respond(name: string) {
-  return {
-    name: name,
-  };
-}
 
 export default async function handler(
   req: NextApiRequest,
