@@ -1,17 +1,14 @@
 import { MongoClient } from 'mongodb';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import md5 from 'md5';
 import validator from 'validator';
 
 type Data = {
   name: string;
 };
 
-function respond(type: boolean, msg: string, data: any) {
+function respond(name: string) {
   return {
-    status: type,
-    message: msg,
-    data: data,
+    name: name,
   };
 }
 
@@ -21,24 +18,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   if (!email || !password || !firstName || !lastName) {
     return res
       .status(401)
-      .json(respond(false, 'username/password/first name/last name required', null));
+      .json(respond('username/password/first name/last name required'));
   }
 
   if (!validator.isAlpha(firstName) || !validator.isAlpha(lastName)) {
-    return res.status(401).json(respond(false, 'First Name and Last Name need to be only string', null));
+    return res.status(401).json(respond('First Name and Last Name need to be only string'));
   }
 
   if (!validator.isEmail(email)) {
-    return res.status(401).json(respond(false, 'Invalid Email', null));
+    return res.status(401).json(respond('Invalid Email'));
   }
 
-  const encryptedPassword = md5(password);
-  req.body.password = encryptedPassword;
+
+  req.body.password = password;
 
   // TODO: Save user data to the database
 
-  return res.status(200).json({ name: 'OK' });
+  return res.status(200).json(respond('OK'));
 }
+
 
   // search user by user name
   // const user = await User.searchEmailUser(email);
