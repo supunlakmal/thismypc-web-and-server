@@ -27,7 +27,9 @@ export default async  function  handler(
   
 
   const email = req.body.email;
-  const password = md5(req.body.password);
+  //TODO need to Encripted password
+  // const password = md5(req.body.password);
+  const password = req.body.password
   req.body.password = password;
   // const userData = req.body;
   if (
