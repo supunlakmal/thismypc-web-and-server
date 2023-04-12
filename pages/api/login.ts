@@ -47,6 +47,7 @@ export default async function handler(
       {
         id: user._id,
         email: user.email,
+        userType: user.userType,
       },
       JWT_SECRET,
       {
