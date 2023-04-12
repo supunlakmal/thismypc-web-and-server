@@ -22,7 +22,7 @@ export async function connectToMongoClient() {
   return client;
 }
 
-export function respond(name: string) {
+export function respond(name: any) {
   return {
     name: name,
   };

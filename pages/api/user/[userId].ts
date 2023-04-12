@@ -1,46 +1,60 @@
+import jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import {
   connectToMongoClient,
   dbName,
   respond,
 } from "../../../utils/mongoUtils";
-
-interface CustomNextApiRequest extends NextApiRequest {
-  query: {
-    userId: string;
-  };
-}
-
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+type Data = {
+  [a: string]: any;
+};
 export default async function handler(
-  req: CustomNextApiRequest,
-  res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
 ) {
-  const {
-    query: { userId },
-  } = req;
+  if (req.method !== "GET") {
+    return res.status(405).json(respond("Method not allowed"));
+  }
 
-  if (!userId) {
-    return res.status(400).json(respond("User ID is required"));
+  const { userId } = req.query;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json(respond("Authentication token not provided"));
   }
 
   try {
-    const client = await connectToMongoClient();
-    const db = client.db(dbName);
-    const usersCollection = db.collection("users");
+    // Verify JWT token
+    const decodedToken: any = jwt.verify(token, JWT_SECRET);
 
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
-
-    if (!user) {
-      return res.status(404).json(respond("User not found"));
+    if (decodedToken.userId !== userId) {
+      return res.status(401).json(respond("Authentication failed"));
     }
 
-    // Remove sensitive information before sending it to the client
-    delete user.password;
+    const mongoClient = await connectToMongoClient();
+    const db = mongoClient.db(dbName);
+    const usersCollection = db.collection("users");
 
-    return res.status(200).json(user);
+    // Find the user in the database
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return res.status(401).json(respond("User not found"));
+    }
+
+    const { _id, firstName, lastName, email } = user;
+    const userData = { _id, firstName, lastName, email };
+
+    res.status(200).json(respond(userData));
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    const err = error as Error;
+
+    if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+      return res.status(401).json(respond("Invalid or expired token"));
+    }
+
+    console.error("Error connecting to MongoDB:", err);
     return res.status(500).json(respond("Internal server error"));
   }
 }

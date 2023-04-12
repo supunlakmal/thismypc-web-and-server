@@ -6,7 +6,7 @@ import { applyCors } from "../../middlewares/cors";
 import { connectToMongoClient, dbName, respond } from "../../utils/mongoUtils";
 
 type Data = {
-  name: string;
+  [a: string]: any;
 };
 
 // JWT secret key (should be moved to .env file in a real-world application)
@@ -47,7 +47,7 @@ export default async function handler(
     // Create and sign the JWT token
     const token = jwt.sign(
       {
-        id: user._id,
+        userId: user._id,
         email: user.email,
         userType: user.userType,
       },
@@ -59,7 +59,7 @@ export default async function handler(
 
     return res
       .status(200)
-      .json({ name: "Login successful", token: token, userId: user._id });
+      .json({ name: "Login successful", token, userId: user._id });
   } catch (error) {
     console.error("Error connecting to MongoDB:", error);
     return res.status(500).json(respond("Internal server error"));
