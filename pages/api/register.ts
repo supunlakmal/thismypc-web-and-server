@@ -1,61 +1,44 @@
-import { MongoClient } from "mongodb";
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { MongoClient } from 'mongodb';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import md5 from 'md5';
 import validator from 'validator';
-
-
 
 type Data = {
   name: string;
 };
 
-function respond(type:boolean, msg:string, data:any) {
-  const res:any = {};
-  res.data = data;
-  res.message = msg;
-  res.status = type;
-  return res;
+function respond(type: boolean, msg: string, data: any) {
+  return {
+    status: type,
+    message: msg,
+    data: data,
+  };
 }
 
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  const { email, password, firstName, lastName } = req.body;
 
-
-export default async  function  handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>,
-) {
-  
-
-  const email = req.body.email;
-  //TODO need to Encripted password
-  // const password = md5(req.body.password);
-  const password = req.body.password
-  req.body.password = password;
-  // const userData = req.body;
-  if (
-    req.body.email === "" ||
-    req.body.password === "" ||
-    req.body.firstName === "" ||
-    req.body.lastName === ""
-  ) {
-    res.status(401).json(
-      respond(false, "username/password/first name/last name required", null)
-    );
+  if (!email || !password || !firstName || !lastName) {
+    return res
+      .status(401)
+      .json(respond(false, 'username/password/first name/last name required', null));
   }
-  if (
-    !validator.isAlpha(req.body.firstName) ||
-    !validator.isAlpha(req.body.lastName)
-  ) {
-    res.status(401).json(
-      respond(false, "First Name and Last Name need to be only string", null)
-    );
+
+  if (!validator.isAlpha(firstName) || !validator.isAlpha(lastName)) {
+    return res.status(401).json(respond(false, 'First Name and Last Name need to be only string', null));
   }
+
   if (!validator.isEmail(email)) {
-    res.status(401).json(respond(false, "Invalid Email", null));
+    return res.status(401).json(respond(false, 'Invalid Email', null));
   }
 
-  res.status(200).json({ name: 'OK' });
+  const encryptedPassword = md5(password);
+  req.body.password = encryptedPassword;
 
+  // TODO: Save user data to the database
+
+  return res.status(200).json({ name: 'OK' });
+}
 
   // search user by user name
   // const user = await User.searchEmailUser(email);
@@ -93,6 +76,6 @@ export default async  function  handler(
 
 
 
-}
+// }
 
 
