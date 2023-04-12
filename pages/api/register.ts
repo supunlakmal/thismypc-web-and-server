@@ -71,6 +71,12 @@ export default async function handler(
     const db = mongoClient.db(dbName);
     const usersCollection = db.collection("users");
 
+    // Check if the email already exists
+    const existingUser = await usersCollection.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json(respond("Email already exists"));
+    }
+
     // Insert the user data into the "users" collection
     await usersCollection.insertOne(userData);
 
