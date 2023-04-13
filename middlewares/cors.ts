@@ -1,10 +1,10 @@
-import Cors from "cors";
-import { NextApiRequest, NextApiResponse } from "next";
+import Cors from 'cors';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 // Initializing the cors middleware
 const cors = Cors({
-  methods: ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"],
-  origin: "*", // You can set a specific origin instead of "*" for better security
+  methods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: '*', // You can set a specific origin instead of "*" for better security
   credentials: true,
 });
 
@@ -13,7 +13,7 @@ const cors = Cors({
 function runMiddleware(
   req: NextApiRequest,
   res: NextApiResponse,
-  fn: Function
+  fn: Function,
 ) {
   return new Promise((resolve, reject) => {
     fn(req, res, (result: unknown) => {

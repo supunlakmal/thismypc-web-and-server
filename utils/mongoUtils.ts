@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient } from 'mongodb';
 
 // Connection URI and database name
 export const uri = process.env.MONGODB_URI as string;
@@ -15,7 +15,7 @@ export async function connectToMongoClient() {
       await client.connect();
       isConnected = true;
     } catch (error) {
-      console.error("Error connecting to MongoDB:", error);
+      console.error('Error connecting to MongoDB:', error);
       throw error;
     }
   }
