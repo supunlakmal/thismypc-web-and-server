@@ -13,7 +13,7 @@
     "build-storybook": "build-storybook",
     "chromatic": "npx chromatic --exit-once-uploaded",
     "eslint:github-action": "eslint .",
-    "socket": "node server.js",
+    "socket": "nodemon server.js",
     "both": "concurrently \"npm run dev\" \"npm run socket\""
   },
   "dependencies": {
@@ -60,6 +60,7 @@
     "eslint-import-resolver-typescript": "^3.5.2",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-storybook": "^0.6.8",
+    "nodemon": "^2.0.22",
     "postcss": "^8.4.21",
     "prettier": "^2.8.1",
     "prettier-plugin-organize-imports": "^3.2.1",

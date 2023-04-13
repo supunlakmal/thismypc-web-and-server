@@ -44,8 +44,14 @@ export default async function handler(
       return res.status(401).json(respond('User not found'));
     }
 
-    const { _id, firstName, lastName, email } = user;
-    const userData = { _id, firstName, lastName, email };
+    const { _id, firstName, lastName, email, online } = user;
+    const userData = {
+      _id,
+      firstName,
+      lastName,
+      email,
+      online: online || false,
+    };
 
     res.status(200).json(respond(userData));
   } catch (error) {
