@@ -23,7 +23,5 @@ export async function connectToMongoClient() {
 }
 
 export function respond(name: any) {
-  return {
-    name: name,
-  };
+  return name;
 }

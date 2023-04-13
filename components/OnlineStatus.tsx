@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 interface UserStatus {
   firstName: string;
   lastName: string;
-  status: string;
+  online: string;
 }
 
 const OnlineStatus: React.FC = () => {
@@ -52,10 +52,10 @@ const OnlineStatus: React.FC = () => {
       </p>
       <p
         className={`text-lg ${
-          userStatus.status === 'online' ? 'text-green-500' : 'text-red-500'
+          userStatus.online ? 'text-green-500' : 'text-red-500'
         }`}
       >
-        {userStatus.status}
+        {userStatus.online ? 'Online' : 'Offline'}
       </p>
     </div>
   );

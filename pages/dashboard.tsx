@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
 import AdminLayout from '../components/AdminLayout';
 import OnlineStatus from '../components/OnlineStatus';
 const storageData = [
@@ -19,6 +21,20 @@ const storageData = [
 ];
 
 const Dashboard: React.FC = () => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    const socket = io('http://localhost:3001');
+    console.log({ socket });
+
+    socket.emit('joinFromWeb', {
+      data: {
+        userId,
+        token,
+      },
+    });
+  }, []);
   return (
     <AdminLayout>
       <h1 className="text-2xl font-semibold">Dashboard</h1>
@@ -26,7 +42,7 @@ const Dashboard: React.FC = () => {
         Welcome to your admin panel dashboard. Storage information is displayed
         below:
       </p>
-      <OnlineStatus status="online" />
+      <OnlineStatus />
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {storageData.map((storage) => (
           <div
