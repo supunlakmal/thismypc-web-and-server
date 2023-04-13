@@ -28,60 +28,6 @@
     res.status(200).json(respond(true, "User Information", userClass.getUser()));
   });
   
-  app.post("/api/v1/user/password/edit", async (req, res) => {
-    
-    const authentication_key = req.headers.authentication_key;
-    const userID = req.body.userID;
-    const newPassword = md5(req.body.newPassword);
-    const password = md5(req.body.password);
-    if (!(await User.authUser(userID, authentication_key))) {
-      res.status(401);
-      return res.json(respond(false, "Invalid User", null));
-    }
-    if (
-      req.body.password === "" ||
-      req.body.newPassword === "" ||
-      req.body.confirmNewPassword === ""
-    ) {
-      res.status(401);
-      return res.json(
-        respond(false, "Password/New Password/Confirm Password required", null)
-      );
-    }
-    if (req.body.newPassword !== req.body.confirmNewPassword) {
-      res.status(401);
-      return res.json(
-        respond(false, "New Password and  Confirm Password not equal", null)
-      );
-    }
-    const user = await User.passwordConfirm(userID, password);
-    if (!user) {
-      res.status(401);
-      return res.json(respond(false, "Invalid User", null));
-    }
-    user.password = newPassword;
-    await User.updateUserPassword(userID, user, {});
-    res.status(200);
-    res.json(respond(true, "Update Done", null));
-  });
-  
-  app.post("/api/v1/user/update", async (req, res) => {
-    
-    const authentication_key = req.headers.authentication_key;
-    const userID = req.body.userID;
-    if (!(await User.authUser(userID, authentication_key))) {
-      res.status(401);
-      return res.json(respond(false, "Invalid User", null));
-    }
-    if (req.body.firstName === "" || req.body.lastName === "") {
-      res.status(401);
-      return res.json(respond(false, "First name /Last name required", null));
-    }
-    await User.updateUserInfo(userID, req.body, {});
-    res.status(200);
-    res.json(respond(true, "Update Done", null));
-  });
-  
   app.get("/api/v1/user/:userID/logout", async (req, res) => {
     const userID = req.params.userID;
     const authentication_key = req.headers.authentication_key;
