@@ -18,7 +18,8 @@ export default async function handler(
     return res.status(405).json(respond('Method not allowed'));
   }
 
-  const { userId } = req.query;
+  const userId = (req.query.userId as string) || '';
+
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
