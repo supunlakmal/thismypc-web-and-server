@@ -1,7 +1,11 @@
 import md5 from 'md5';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import validator from 'validator';
-import { connectToMongoClient, dbName, respond } from '../../utils/mongoUtils';
+import {
+  connectToMongoClient,
+  dbName,
+  respond,
+} from '../../../utils/mongoUtils';
 
 type Data = {
   name: string;
