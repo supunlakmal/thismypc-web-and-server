@@ -41,7 +41,7 @@ export default async function handler(
     });
 
     if (!pc) {
-      return res.status(404).json(respond('PC not found'));
+      return res.status(201).json(respond('PC not found'));
     } else {
       res.status(200).json(respond(pc));
     }

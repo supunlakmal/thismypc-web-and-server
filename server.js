@@ -3,6 +3,8 @@ const { MongoClient, ObjectId } = require('mongodb');
 const { Server: SocketIOServer } = require('socket.io');
 const { uri, dbName, jwtSecret } = require('./config');
 const jwt = require('jsonwebtoken');
+const md5 = require('md5');
+const axios = require('axios');
 
 const server = new HttpServer();
 const io = new SocketIOServer(server, {
@@ -12,32 +14,25 @@ const io = new SocketIOServer(server, {
   },
 });
 
-async function connectToMongoDB() {
-  const client = new MongoClient(uri);
-  await client.connect();
-  return client;
-}
-
-async function updateUserOnlineStatus(client, userId, online) {
-  const db = client.db(dbName);
-  const usersCollection = db.collection('users');
-  await usersCollection.updateOne(
-    { _id: new ObjectId(userId) },
-    { $set: { online } },
-  );
-}
-
 io.on('connection', (socket) => {
   console.log('New client connected');
 
-  socket.on('user login', async (userId) => {
+  socket.on('user login', async ({ userId, token }) => {
     try {
-      const client = await connectToMongoDB();
-      await updateUserOnlineStatus(client, userId, true);
+      const response = await axios.put(
+        `http://localhost:3000/api/user/${userId}/update/online`,
+        { isOnline: true },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
       console.log(`User ${userId} is now online`);
-      await client.close();
     } catch (error) {
-      console.error('Error updating user online status:', error);
+      console.error('Error updating user online status:', error.message);
     }
   });
 
@@ -49,33 +44,52 @@ io.on('connection', (socket) => {
       const decoded = jwt.verify(token, jwtSecret);
 
       if (decoded.userId === userId) {
-        const client = await connectToMongoDB();
-        const db = client.db(dbName);
-        const usersCollection = db.collection('users');
-        const user = await usersCollection.findOne({
-          _id: new ObjectId(userId),
-        });
-
-        console.log({ user });
-
-        if (user) {
-          socket.join(user.ioSocketID);
-          await usersCollection.updateOne(
-            { _id: new ObjectId(userId) },
-            { $set: { userCurrentSocketId: socket.id } },
+        try {
+          const response = await axios.put(
+            `http://localhost:3000/api/user/${userId}/update/currentSocketId`,
+            { userCurrentSocketId: socket.id },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+            },
           );
-          io.sockets.in(user.ioSocketID).emit('getAppData', {
-            data: 'start',
-          });
-        }
 
-        await client.close();
+          socket.join(socket.id);
+
+          console.log(`User ${userId} is now online`);
+        } catch (error) {
+          console.error('Error updating user online status:', error.message);
+        }
       } else {
         console.error('Invalid user ID');
       }
     } catch (err) {
       console.error('Invalid token:', err);
     }
+  });
+
+  socket.on('joinFromApp', async (data) => {
+    const token = data.data.token;
+    const userId = data.data.userId;
+    const pcKey = md5(data.data.pcKey);
+
+    console.log({ token, userId, pcKey });
+
+    // const pc = await PC.authApp(userID, authentication_key, pcKey);
+    // if (pc) {
+    //   const user = await User.getUser(userID);
+    //   if (user) {
+    //     socket.join(user.ioSocketID);
+    //     const pcData = await PC.getPC(pcKey);
+    //     if (pcData) {
+    //       const pcInfo = {};
+    //       pcInfo.pcSocketID = socket.id;
+    //       await PC.updatePcSocketID(pcData._id, pcInfo, {});
+    //     }
+    //   }
+    // }
   });
 
   socket.on('disconnect', () => {
