@@ -14,6 +14,9 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem('token') as string;
 
+    if (!token) {
+      return;
+    }
     try {
       const decoded = jwt.decode(token) as JwtPayload | null;
 

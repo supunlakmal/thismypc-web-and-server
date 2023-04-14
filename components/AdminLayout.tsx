@@ -1,9 +1,16 @@
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import { ReactNode, useCallback } from 'react';
 interface AdminLayoutProps {
   children: ReactNode;
 }
 const AdminLayout = ({ children }: AdminLayoutProps) => {
+  const router = useRouter();
+  const handleLogout = useCallback(() => {
+    // Remove token and userId from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+  }, [router]);
   return (
     <div className="flex h-screen bg-gray-100">
       <div className="bg-white w-64 flex flex-col p-4">
@@ -26,6 +33,17 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               <Link href="/settings">
                 <div className="text-gray-600 hover:text-blue-500">
                   Settings
+                </div>
+              </Link>
+            </li>
+
+            <li className="mb-2">
+              <Link href="#">
+                <div
+                  className="text-gray-600 hover:text-blue-500"
+                  onClick={handleLogout}
+                >
+                  Logout
                 </div>
               </Link>
             </li>

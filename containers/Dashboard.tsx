@@ -30,7 +30,10 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const token = localStorage.getItem('token') as string;
     const userId = localStorage.getItem('userId');
-
+    if (!token || !userId) {
+      router.push('/login');
+      return;
+    }
     try {
       const decoded = jwt.decode(token) as JwtPayload | null;
 
